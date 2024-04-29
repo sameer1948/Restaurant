@@ -1,15 +1,21 @@
 /* tslint:disable:no-unused-variable */
 
 import { TestBed, async } from '@angular/core/testing';
+<<<<<<< HEAD
 import { RouterTestingModule } from '@angular/router/testing';
+=======
+>>>>>>> 4f3518b2833645760d0b259d2520a7258d14dbe2
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
+<<<<<<< HEAD
       imports: [
         RouterTestingModule
       ],
+=======
+>>>>>>> 4f3518b2833645760d0b259d2520a7258d14dbe2
       declarations: [
         AppComponent
       ],
