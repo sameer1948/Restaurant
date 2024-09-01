@@ -1,16 +1,15 @@
-package org.learn.aws.start.controller;
+package org.app.restaurant.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.learn.aws.start.model.Account;
-import org.learn.aws.start.model.Branch;
-import org.learn.aws.start.service.AccountServices;
-import org.learn.aws.start.service.BranchServices;
+import org.app.restaurant.model.Account;
+import org.app.restaurant.model.Branch;
+import org.app.restaurant.service.AccountServices;
+import org.app.restaurant.service.BranchServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.learn.aws.start.model;
+package org.app.restaurant.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,7 +1,7 @@
-package org.learn.aws.start.service;
+package org.app.restaurant.service;
 
-import org.learn.aws.start.model.Branch;
-import org.learn.aws.start.repository.BranchRepository;
+import org.app.restaurant.repository.BranchRepository;
+import org.app.restaurant.model.Branch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

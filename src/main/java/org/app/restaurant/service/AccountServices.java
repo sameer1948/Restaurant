@@ -1,10 +1,13 @@
-package org.learn.aws.start.service;
+package org.app.restaurant.service;
 
-import org.learn.aws.start.model.*;
-import org.learn.aws.start.repository.AccountRepository;
-import org.learn.aws.start.repository.AccountTypeRepository;
-import org.learn.aws.start.repository.BranchRepository;
-import org.learn.aws.start.repository.UserDetailsRepository;
+import org.app.restaurant.model.Account;
+import org.app.restaurant.model.AccountType;
+import org.app.restaurant.model.Branch;
+import org.app.restaurant.model.UserDetails;
+import org.app.restaurant.repository.AccountRepository;
+import org.app.restaurant.repository.AccountTypeRepository;
+import org.app.restaurant.repository.BranchRepository;
+import org.app.restaurant.repository.UserDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

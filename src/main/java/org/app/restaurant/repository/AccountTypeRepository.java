@@ -1,6 +1,6 @@
-package org.learn.aws.start.repository;
+package org.app.restaurant.repository;
 
-import org.learn.aws.start.model.AccountType;
+import org.app.restaurant.model.AccountType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AccountTypeRepository extends JpaRepository<AccountType, Integer> {

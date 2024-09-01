@@ -1,6 +1,6 @@
-package org.learn.aws.start.repository;
+package org.app.restaurant.repository;
 
-import org.learn.aws.start.model.UserDetails;
+import org.app.restaurant.model.UserDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserDetailsRepository extends JpaRepository<UserDetails, Long> {

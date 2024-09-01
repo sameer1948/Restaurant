@@ -1,10 +1,10 @@
-package org.learn.aws.start;
+package org.app.restaurant;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AwsApplicationTests {
+class RestaurantApplicationTests {
 
 	@Test
 	void contextLoads() {
