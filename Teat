@@ -103,3 +103,126 @@ class IbisProducerComponentSpec extends Specification {
         masked == "*123"
     }
 }
+
+
+
+
+
+import spock.lang.Specification
+import spock.lang.Unroll
+
+class IbisProducerComponentSpec extends Specification {
+
+    def ibisProducerService = Mock(IbisProducerService) // Mocked service
+    def ibisProducerComponent = new IbisProducerComponent(ibisProducerService) // Instantiate component
+
+    @Unroll
+    def "test execute method with successful publish"() {
+        given: "A valid PaymentRequest object and configuration map"
+        def financialTransaction = Mock(FinancialTransaction)
+        def paymentRequest = Mock(PaymentRequest) {
+            getRequestId() >> requestId
+            getFinancialTransaction() >> financialTransaction
+            getOperation() >> operation
+        }
+
+        and: "No exception is thrown by ibisProducerService"
+        ibisProducerService.publish(financialTransaction) >> {}
+
+        when: "execute method is called"
+        def response = ibisProducerComponent.execute(paymentRequest, [:])
+
+        then: "The response status should be SUCCESS"
+        1 * ibisProducerService.publish(financialTransaction) // Ensure the publish method was called once
+        response.getStatus() == "SUCCESS"
+
+        where:
+        requestId   | operation
+        "REQ123"    | "PAYMENT"
+        "REQ456"    | "REFUND"
+    }
+
+    def "test execute method when publish throws exception"() {
+        given: "A valid PaymentRequest object"
+        def financialTransaction = Mock(FinancialTransaction)
+        def paymentRequest = Mock(PaymentRequest) {
+            getRequestId() >> "REQ789"
+            getFinancialTransaction() >> financialTransaction
+            getOperation() >> "OPERATION"
+        }
+
+        and: "ibisProducerService throws an exception"
+        ibisProducerService.publish(financialTransaction) >> { throw new RuntimeException("Kafka Error") }
+
+        when: "execute method is called"
+        def response = ibisProducerComponent.execute(paymentRequest, [:])
+
+        then: "An error is logged and SYSTEM_FAULT is returned"
+        1 * ibisProducerService.publish(financialTransaction) // Ensure publish was attempted
+        response.getStatus() == "SYSTEM_FAULT"
+    }
+
+    def "test avroFromRequest creates AuthorizationInformation correctly"() {
+        given: "A FinancialTransaction object"
+        def creditAccount = Mock(FinancialTransactionAccount) {
+            getTransactionProduct() >> Mock(Product) {
+                getProductTypeCode() >> "DDA"
+            }
+            getAccountNumber() >> "1234567890"
+            getAccountRoutingNumber() >> "111000025"
+            getAccountHolderFullName() >> "John Doe"
+        }
+
+        def debitAccount = Mock(FinancialTransactionAccount) {
+            getTransactionProduct() >> Mock(Product) {
+                getProductTypeCode() >> "SAVINGS"
+            }
+            getAccountNumber() >> "0987654321"
+            getAccountRoutingNumber() >> "222000111"
+            getAccountHolderFullName() >> "Jane Doe"
+        }
+
+        def financialTransaction = Mock(FinancialTransaction) {
+            getTransactionAccount("CREDIT") >> Optional.of(creditAccount)
+            getTransactionAccount("DEBIT") >> Optional.of(debitAccount)
+            getFinancialTransactionRequesterParty() >> Mock(FinancialTransactionParty) {
+                getPartyId() >> "P123"
+            }
+            getFinancialTransactionSubmitterParty() >> Mock(FinancialTransactionParty) {
+                getPartyId() >> "P456"
+            }
+            getFinTransAmt() >> new BigDecimal("150.00")
+            getCreateDt() >> LocalDateTime.now()
+            getChannelCd() >> "MOBILE"
+        }
+
+        when: "avroFromRequest is called"
+        def authorizationInfo = ibisProducerComponent.avroFromRequest(financialTransaction)
+
+        then: "The AuthorizationInformation is populated correctly"
+        authorizationInfo.getToAccountType() == "DDA"
+        authorizationInfo.getFromAccountType() == "SAVINGS"
+        authorizationInfo.getAccountNumberLast4() == "4321"
+        authorizationInfo.getToAccountNumberLast4() == "7890"
+        authorizationInfo.getAmount() == "150.00"
+        authorizationInfo.getRequestorId() == "P123"
+        authorizationInfo.getSubmitterId() == "P456"
+        authorizationInfo.getChannel() == AuthorizationChannel.MOBILE
+    }
+
+    def "test maskAccountNumber returns masked value"() {
+        when: "maskAccountNumber is called with valid account number"
+        def masked = ibisProducerComponent.maskAccountNumber("1234567890")
+
+        then: "The correct last 4 digits are returned"
+        masked == "*6789"
+    }
+
+    def "test maskAccountNumber with short account number"() {
+        when: "maskAccountNumber is called with a short account number"
+        def masked = ibisProducerComponent.maskAccountNumber("123")
+
+        then: "The entire account number is masked"
+        masked == "*123"
+    }
+}
