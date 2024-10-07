@@ -226,3 +226,53 @@ class IbisProducerComponentSpec extends Specification {
         masked == "*123"
     }
 }
+
+@Unroll
+def "test execute method with successful publish"() {
+    given: "A valid PaymentRequest object and configuration map"
+    def creditAccount = Mock(FinancialTransactionAccount) {
+        getTransactionProduct() >> Mock(Product) {
+            getProductTypeCode() >> "DDA"
+        }
+        getAccountNumber() >> "1234567890"
+        getAccountRoutingNumber() >> "111000025"
+        getAccountHolderFullName() >> "John Doe"
+    }
+
+    def debitAccount = Mock(FinancialTransactionAccount) {
+        getTransactionProduct() >> Mock(Product) {
+            getProductTypeCode() >> "SAVINGS"
+        }
+        getAccountNumber() >> "0987654321"
+        getAccountRoutingNumber() >> "222000111"
+        getAccountHolderFullName() >> "Jane Doe"
+    }
+
+    def financialTransaction = Mock(FinancialTransaction) {
+        // Ensure we return Optional.of for valid accounts, and handle any null cases if needed.
+        getTransactionAccount("CREDIT") >> Optional.of(creditAccount)
+        getTransactionAccount("DEBIT") >> Optional.of(debitAccount)
+    }
+
+    def paymentRequest = Mock(PaymentRequest) {
+        getRequestId() >> requestId
+        getFinancialTransaction() >> financialTransaction
+        getOperation() >> operation
+    }
+
+    and: "No exception is thrown by ibisProducerService"
+    ibisProducerService.publish(financialTransaction) >> {}
+
+    when: "execute method is called"
+    def response = ibisProducerComponent.execute(paymentRequest, [:])
+
+    then: "The response status should be SUCCESS"
+    1 * ibisProducerService.publish(financialTransaction) // Ensure the publish method was called once
+    response.getStatus() == "SUCCESS"
+
+    where:
+    requestId   | operation
+    "REQ123"    | "PAYMENT"
+    "REQ456"    | "REFUND"
+}
+
