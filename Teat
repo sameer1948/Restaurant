@@ -276,3 +276,67 @@ def "test execute method with successful publish"() {
     "REQ456"    | "REFUND"
 }
 
+
+def "test avroFromRequest creates AuthorizationInformation correctly"() {
+    given: "A FinancialTransaction object with credit and debit accounts, and parties"
+    def creditAccount = Mock(FinancialTransactionAccount) {
+        getTransactionProduct() >> Mock(Product) {
+            getProductTypeCode() >> "DDA" // Mock product type for credit account
+        }
+        getAccountNumber() >> "1234567890" // Mock account number for credit
+        getAccountRoutingNumber() >> "111000025"
+        getAccountHolderFullName() >> "John Doe"
+    }
+
+    def debitAccount = Mock(FinancialTransactionAccount) {
+        getTransactionProduct() >> Mock(Product) {
+            getProductTypeCode() >> "SAVINGS" // Mock product type for debit account
+        }
+        getAccountNumber() >> "0987654321" // Mock account number for debit
+        getAccountRoutingNumber() >> "222000111"
+        getAccountHolderFullName() >> "Jane Doe"
+    }
+
+    def requesterParty = Mock(FinancialTransactionParty) {
+        getPartyId() >> "P123"
+        getPartyType() >> Mock(PartyType) {
+            name() >> "INDIVIDUAL" // Mock party type for requester
+        }
+    }
+
+    def submitterParty = Mock(FinancialTransactionParty) {
+        getPartyId() >> "P456"
+        getPartyType() >> Mock(PartyType) {
+            name() >> "COMPANY" // Mock party type for submitter
+        }
+    }
+
+    def financialTransaction = Mock(FinancialTransaction) {
+        getTransactionAccount("CREDIT") >> Optional.of(creditAccount) // Mock the credit account
+        getTransactionAccount("DEBIT") >> Optional.of(debitAccount)   // Mock the debit account
+        getFinancialTransactionRequesterParty() >> requesterParty      // Mock requester party
+        getFinancialTransactionSubmitterParty() >> submitterParty      // Mock submitter party
+        getFinTransAmt() >> new BigDecimal("150.00")                   // Mock transaction amount
+        getCreateDt() >> LocalDateTime.now()                           // Mock transaction creation time
+        getAdjustedRequestDt() >> LocalDateTime.now().plusDays(1)      // Mock adjusted request date
+        getChannelCd() >> "MOBILE"                                     // Mock channel as MOBILE
+        getFinTransConfirmNr() >> 12345L                               // Mock confirmation number
+    }
+
+    when: "avroFromRequest is called"
+    def authorizationInfo = ibisProducerComponent.avroFromRequest(financialTransaction)
+
+    then: "The AuthorizationInformation is populated correctly"
+    authorizationInfo.getToAccountType() == "DDA"
+    authorizationInfo.getFromAccountType() == "SAVINGS"
+    authorizationInfo.getAccountNumberLast4() == "4321"
+    authorizationInfo.getToAccountNumberLast4() == "7890"
+    authorizationInfo.getAmount() == "150.00"
+    authorizationInfo.getRequestorId() == "P123"
+    authorizationInfo.getSubmitterId() == "P456"
+    authorizationInfo.getRequestorType() == "INDIVIDUAL"
+    authorizationInfo.getSubmitterType() == "COMPANY"
+    authorizationInfo.getChannel() == AuthorizationChannel.MOBILE
+    authorizationInfo.getSourceSystem() == "IMM"  // Assuming the constant is correct
+    authorizationInfo.getTransactionId() == "12345"
+}
