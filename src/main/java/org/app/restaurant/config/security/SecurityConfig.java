@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_END_POINTS = {"/orders/**", "/h2-console/**", "/auth/authenticate", "/user/new-user"};
+    private static final String[] PUBLIC_END_POINTS = {"/admin/fetch-all-menu", "/h2-console/**", "/auth/authenticate", "/user/new-user"};
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;

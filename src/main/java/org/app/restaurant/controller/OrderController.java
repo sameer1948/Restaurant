@@ -7,10 +7,9 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
-@CrossOrigin("*")
+@RestController
 public class OrderController {
 
     private final OrderServices orderServices;

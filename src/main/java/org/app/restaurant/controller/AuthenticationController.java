@@ -3,9 +3,7 @@ package org.app.restaurant.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.app.restaurant.dto.AuthenticationRequest;
 import org.app.restaurant.dto.AuthenticationResponse;
-import org.app.restaurant.dto.ReqRes;
 import org.app.restaurant.service.AuthenticationService;
-import org.app.restaurant.service.UsersManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,15 +18,15 @@ public class AuthenticationController {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest authenticationRequest) {
+    @PostMapping("/authenticate") // Public End Point
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest) {
         return ResponseEntity.ok(authenticationService.authenticate(authenticationRequest));
     }
 
-    @PostMapping("/refresh")
+    /*@PostMapping("/refresh-token") //If Required Implement Refresh Token.
     public ResponseEntity<AuthenticationResponse> refreshToken(@RequestBody AuthenticationRequest authenticationRequest) {
         return ResponseEntity.ok(authenticationService.getRefreshToken(authenticationRequest));
-    }
+    }*/
 
 
 }

@@ -54,8 +54,7 @@ public class AuthenticationService {
 
     }
 
-    public AuthenticationResponse getRefreshToken(AuthenticationRequest authenticationRequest) {
-        return AuthenticationResponse.builder().build();
+    //public AuthenticationResponse getRefreshToken(AuthenticationRequest authenticationRequest) {
         /*try{
             String ourEmail = jwtUtils.extractUsername(refreshTokenRequest.getToken());
             CustomUser users = customUserRepository.findByUsername(ourEmail).orElseThrow();
@@ -75,6 +74,6 @@ public class AuthenticationService {
             response.setMessage(e.getMessage());
             return response;
         }*/
-    }
+    //}
 
 }
