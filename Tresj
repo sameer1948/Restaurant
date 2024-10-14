@@ -1,0 +1,43 @@
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.clients.producer.Producer
+import org.springframework.kafka.core.KafkaTemplate
+import spock.lang.Specification
+import spock.lang.Subject
+import javax.annotation.PreDestroy
+
+class IbisProducerServiceTest extends Specification {
+
+    KafkaTemplate<String, AuthorizationInformation> ibisKafkaTemplate = Mock() // Mock KafkaTemplate
+    String topic = "test-topic" // Define a test topic
+
+    @Subject
+    IbisProducerService ibisProducerService = new IbisProducerService(topic, ibisKafkaTemplate)
+
+    def "test publish sends correct message"() {
+        given: "A valid AuthorizationInformation object"
+        AuthorizationInformation authorizationInformation = new AuthorizationInformation()
+
+        when: "publish is called"
+        ibisProducerService.publish(authorizationInformation)
+
+        then: "KafkaTemplate should send a message with the correct topic and authorizationInformation"
+        1 * ibisKafkaTemplate.send(_ as ProducerRecord<String, AuthorizationInformation>) >> { args ->
+            assert args[0].topic() == topic // Check that the topic matches
+            assert args[0].key() != null // Check that the UUID key is not null
+            assert args[0].value() == authorizationInformation // Check that the AuthorizationInformation matches
+        }
+    }
+
+    def "test cleanup closes the producer"() {
+        given: "A mock ProducerFactory"
+        ProducerFactory producerFactory = Mock()
+        ibisKafkaTemplate.getProducerFactory() >> producerFactory
+
+        when: "cleanup is called"
+        ibisProducerService.cleanup()
+
+        then: "KafkaTemplate should flush and close the thread-bound producer"
+        1 * ibisKafkaTemplate.flush() // Ensure flush is called
+        1 * producerFactory.closeThreadBoundProducer() // Ensure the producer is closed
+    }
+}
