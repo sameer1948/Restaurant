@@ -1,9 +1,9 @@
 package org.app.restaurant.advicer;
 
-import org.app.restaurant.exception.NoSuchUserExistsException;
 import org.app.restaurant.exception.UnAuthorizedRequestException;
 import org.app.restaurant.exception.UserAlreadyExistsException;
 import org.app.restaurant.entity.ErrorResponse;
+import org.app.restaurant.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -26,9 +26,9 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
-    @ExceptionHandler(value = NoSuchUserExistsException.class)
+    @ExceptionHandler(value = UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody ErrorResponse handleNoSuchUserExistsException(NoSuchUserExistsException ex) {
+    public @ResponseBody ErrorResponse handleNoSuchUserExistsException(UserNotFoundException ex) {
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
