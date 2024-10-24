@@ -2,8 +2,10 @@ package org.app.restaurant.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.app.restaurant.dto.NewCustomUserRequest;
+import org.app.restaurant.entity.CustomUser;
 import org.app.restaurant.exception.UserAlreadyExistsException;
 import org.app.restaurant.entity.CustomUserDetails;
+import org.app.restaurant.exception.UserNotFoundException;
 import org.app.restaurant.repository.CustomUserDetailsRepository;
 import org.app.restaurant.repository.CustomUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,7 @@ public class CustomUserDetailsServices implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User : " + username + " Not Found ...!"));
     }
 
-    public NewCustomUserRequest saveUser(NewCustomUserRequest newCustomUserRequest) { // Add Exception Handler
+    public NewCustomUserRequest saveUser(NewCustomUserRequest newCustomUserRequest) throws UserAlreadyExistsException { // Add Exception Handler
         if (customUserRepository.findById(newCustomUserRequest.getCustomUser().getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("User : " + newCustomUserRequest.getCustomUser().getUsername() + " Already Existing...!");
         }
@@ -41,6 +43,20 @@ public class CustomUserDetailsServices implements UserDetailsService {
                      .customUserDetails(customUserDetails).build();
         }
         throw new RuntimeException("Unable To Save User : " + newCustomUserRequest.getCustomUser().getUsername());
+    }
+
+    public CustomUser changeRole(CustomUser customUser) throws UserNotFoundException {
+        if (customUserRepository.findById(customUser.getUsername()).isPresent()) {
+            customUserRepository.save(customUser); // change update Logic
+        }
+        throw new UserAlreadyExistsException("User : " + customUser.getUsername() + " Not Found...!");
+    }
+
+    public String deleteUserById(String username) throws UserNotFoundException {
+        if (customUserRepository.findById(username).isPresent()) {
+            customUserRepository.deleteById(username); // change delete Logic
+        }
+        throw new UserAlreadyExistsException("User : " + username + " Not Found...!");
     }
 
 

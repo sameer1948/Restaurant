@@ -1,5 +1,6 @@
 package org.app.restaurant.config.security;
 
+import org.app.restaurant.constatnts.RoleType;
 import org.app.restaurant.service.CustomUserDetailsServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,8 +36,8 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request-> request.requestMatchers(PUBLIC_END_POINTS).permitAll()
-                        .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/user/**").hasAnyAuthority("USER")
+                        .requestMatchers("/admin/**").hasAnyAuthority(RoleType.ADMIN.getRoleName())
+                        .requestMatchers("/user/**").hasAnyAuthority(RoleType.USER.getRoleName())
                         .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
                         .anyRequest().authenticated())
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
