@@ -2,7 +2,7 @@ package org.app.restaurant.service;
 
 import org.app.restaurant.dto.AuthenticationRequest;
 import org.app.restaurant.dto.AuthenticationResponse;
-import org.app.restaurant.model.CustomUser;
+import org.app.restaurant.entity.CustomUser;
 import org.app.restaurant.repository.CustomUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

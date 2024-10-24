@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
-import org.app.restaurant.model.CustomUser;
-import org.app.restaurant.model.CustomUserDetails;
+import org.app.restaurant.entity.CustomUser;
+import org.app.restaurant.entity.CustomUserDetails;
 
 @Builder
 @Data

@@ -2,7 +2,7 @@ package org.app.restaurant.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.app.restaurant.model.MenuList;
+import org.app.restaurant.entity.MenuList;
 import org.app.restaurant.repository.MenuListRepository;
 import org.springframework.stereotype.Service;
 

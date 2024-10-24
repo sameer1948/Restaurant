@@ -1,7 +1,7 @@
 package org.app.restaurant.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.app.restaurant.model.MenuList;
+import org.app.restaurant.entity.MenuList;
 import org.app.restaurant.service.MenuListServices;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

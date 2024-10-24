@@ -3,7 +3,7 @@ package org.app.restaurant.advicer;
 import org.app.restaurant.exception.NoSuchUserExistsException;
 import org.app.restaurant.exception.UnAuthorizedRequestException;
 import org.app.restaurant.exception.UserAlreadyExistsException;
-import org.app.restaurant.model.ErrorResponse;
+import org.app.restaurant.entity.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;

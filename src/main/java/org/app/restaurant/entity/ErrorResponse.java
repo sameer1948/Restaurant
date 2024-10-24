@@ -1,4 +1,4 @@
-package org.app.restaurant.model;
+package org.app.restaurant.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

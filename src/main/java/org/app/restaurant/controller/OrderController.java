@@ -1,7 +1,7 @@
 package org.app.restaurant.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.app.restaurant.model.Order;
+import org.app.restaurant.entity.Order;
 import org.app.restaurant.service.OrderServices;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
