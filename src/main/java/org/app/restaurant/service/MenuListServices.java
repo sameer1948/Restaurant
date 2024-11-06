@@ -3,6 +3,7 @@ package org.app.restaurant.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.app.restaurant.entity.MenuList;
+import org.app.restaurant.exception.DuplicateMenuItemException;
 import org.app.restaurant.repository.MenuListRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,13 @@ public class MenuListServices {
     private final MenuListRepository menuListRepository;
 
     public MenuList addToMenuList(MenuList menuList) {
+
+        MenuList existingMenuList = menuListRepository.findByItemAndPriceAndDescription(menuList.getItem(), menuList.getPrice(), menuList.getDescription());
+
+        if (existingMenuList != null) {
+            throw new DuplicateMenuItemException(menuList.getItem() + " is Already Existing ...!");
+        }
+
         return menuListRepository.save(menuList);
     }
 
@@ -35,7 +43,7 @@ public class MenuListServices {
         }
     }
 
-    public String deleteFromMenuList(int id) {
+    public String deleteFromMenuList(String id) {
         Optional<MenuList> menuById = menuListRepository.findById(id);
         log.info("deleteFromMenuList : -> " + menuById);
         if (menuById.isPresent()) {
@@ -50,7 +58,7 @@ public class MenuListServices {
         return menuListRepository.findAll();
     }
 
-    public Optional<MenuList> getMenuById(int id) {
+    public Optional<MenuList> getMenuById(String id) {
         return menuListRepository.findById(id);
     }
 }

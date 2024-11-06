@@ -3,6 +3,7 @@ package org.app.restaurant.service;
 import lombok.extern.slf4j.Slf4j;
 import org.app.restaurant.dto.NewCustomUserRequest;
 import org.app.restaurant.entity.CustomUser;
+import org.app.restaurant.entity.MenuList;
 import org.app.restaurant.exception.UserAlreadyExistsException;
 import org.app.restaurant.entity.CustomUserDetails;
 import org.app.restaurant.exception.UserNotFoundException;
@@ -13,6 +14,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -45,6 +49,35 @@ public class CustomUserDetailsServices implements UserDetailsService {
         throw new RuntimeException("Unable To Save User : " + newCustomUserRequest.getCustomUser().getUsername());
     }
 
+    public List<NewCustomUserRequest> saveUserAll(List<NewCustomUserRequest> newCustomUserRequests) throws UserAlreadyExistsException {
+        List<NewCustomUserRequest> savedUsers = new ArrayList<>();
+
+        for (NewCustomUserRequest newCustomUserRequest : newCustomUserRequests) {
+            // Check if the user already exists
+            if (customUserRepository.findById(newCustomUserRequest.getCustomUser().getUsername()).isPresent()) {
+                throw new UserAlreadyExistsException("User: " + newCustomUserRequest.getCustomUser().getUsername() + " already exists!");
+            }
+
+            // Set username for custom user details
+            newCustomUserRequest.getCustomUserDetails().setUsername(newCustomUserRequest.getCustomUser().getUsername());
+
+            // Save custom user details
+            CustomUserDetails customUserDetails = customUserDetailsRepository.save(newCustomUserRequest.getCustomUserDetails());
+
+            // Save the custom user
+            CustomUser savedUser = customUserRepository.save(newCustomUserRequest.getCustomUser());
+
+            // Build the response object
+            savedUsers.add(NewCustomUserRequest.builder()
+                    .customUser(savedUser)
+                    .customUserDetails(customUserDetails)
+                    .build());
+        }
+
+        return savedUsers;
+    }
+
+
     public CustomUser changeRole(CustomUser customUser) throws UserNotFoundException {
         if (customUserRepository.findById(customUser.getUsername()).isPresent()) {
             customUserRepository.save(customUser); // change update Logic
@@ -60,6 +93,18 @@ public class CustomUserDetailsServices implements UserDetailsService {
     }
 
 
+    public List<NewCustomUserRequest> fetchAllUsers() {
+        List<CustomUser> customUsers = customUserRepository.findAll();
+        List<NewCustomUserRequest> userRequests = new ArrayList<>();
 
+        for (CustomUser customUser : customUsers) {
+            CustomUserDetails userDetails = customUserDetailsRepository.findByUsername(customUser.getUsername());
+            userRequests.add(NewCustomUserRequest.builder()
+                    .customUser(customUser)
+                    .customUserDetails(userDetails)
+                    .build());
+        }
 
+        return userRequests;
+    }
 }
