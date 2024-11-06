@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "custom_user")
+@Table
 public class CustomUser implements UserDetails {
 
     @Id
@@ -22,6 +22,9 @@ public class CustomUser implements UserDetails {
     private boolean accountNonLocked;
     private boolean credentialsNonExpired;
     private boolean enabled;
+
+    @OneToOne(mappedBy = "customUser", cascade = CascadeType.ALL)
+    private CustomUserDetails customUserDetails;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

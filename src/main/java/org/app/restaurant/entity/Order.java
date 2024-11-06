@@ -1,15 +1,13 @@
 package org.app.restaurant.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
-import java.sql.Date;
-import java.util.List;
+import java.sql.Timestamp;
 
 @AllArgsConstructor
+@Builder
 @Entity
 @Getter
 @NoArgsConstructor
@@ -18,17 +16,19 @@ import java.util.List;
 public class Order {
 
     @Id
-    private long id;
+    @GeneratedValue(generator = "order-id-generator")
+    @GenericGenerator(name = "order-id-generator", strategy = "org.app.restaurant.generator.OrderIdGenerator")
+    private String id;
 
-    @Transient
-    private List<MenuList> menuLists;
-
-    private double amount;
-
-    private Date orderDate;
-
+    private double totalPrice;
+    private Timestamp orderDate;
     private String orderStatus;
-
     private String orderBy;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_details_id", referencedColumnName = "id")
+    private OrderDetails orderDetails;
+
+    /*cascading operations (e.g., persisting or deleting the OrderDetails when an Order is saved or deleted),
+    you can add cascade = CascadeType.ALL to the @OneToOne annotation on the Order entity.*/
 }

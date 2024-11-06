@@ -1,12 +1,14 @@
 package org.app.restaurant.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 @AllArgsConstructor
 @Entity
@@ -17,24 +19,17 @@ import lombok.Setter;
 public class MenuList {
 
     @Id
-    private int id;
+    @GeneratedValue(generator = "menuList-id-generator")
+    @GenericGenerator(name = "menuList-id-generator", strategy = "org.app.restaurant.generator.MenuListIdGenerator")
+    private String id;
 
     private String item;
 
-    private String qty;
+    private String description;
+
+    private int quantity;
 
     private double price;
 
-    private String itemPngPath;
-
-    @Override
-    public String toString() {
-        return "MenuList{" +
-                "id=" + id +
-                ", item='" + item + '\'' +
-                ", qty='" + qty + '\'' +
-                ", price=" + price +
-                ", itemPngPath='" + itemPngPath + '\'' +
-                '}';
-    }
+    private String imagePath;
 }
