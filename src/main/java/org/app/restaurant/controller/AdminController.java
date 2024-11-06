@@ -50,7 +50,7 @@ public class AdminController {
      * @param menuList the list of menu items to be added.
      * @return ResponseEntity with the list of created menu items and status information.
      */
-    @PostMapping("/add-all-menu")
+    @PostMapping("/add-menus")
     public ResponseEntity<List<MenuList>> createNewMenuList(@RequestBody List<MenuList> menuList) {
         List<MenuList> createdMenuItems = menuListServices.addAllToMenuList(menuList);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMenuItems); // 201 Created
@@ -63,7 +63,7 @@ public class AdminController {
      * @return ResponseEntity with the fetched menu item or a 404 if not found.
      */
     @GetMapping("/fetch-menu/{id}")
-    public ResponseEntity<MenuList> fetchOneMenuItem(@PathVariable("id") Integer id) {
+    public ResponseEntity<MenuList> fetchOneMenuItem(@PathVariable("id") String id) {
         Optional<MenuList> menuById = menuListServices.getMenuById(id);
         return menuById.map(ResponseEntity::ok) // 200 OK
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)); // 404 Not Found
@@ -74,7 +74,7 @@ public class AdminController {
      *
      * @return ResponseEntity with the list of menu items.
      */
-    @GetMapping("/fetch-all-menu")
+    @GetMapping("/fetch-menus")
     public ResponseEntity<List<MenuList>> fetchAllMenuItem() {
         List<MenuList> menuItems = menuListServices.getMenuList();
         return ResponseEntity.ok(menuItems); // 200 OK
@@ -99,7 +99,7 @@ public class AdminController {
      * @return ResponseEntity with a success message.
      */
     @DeleteMapping("/delete-menu/{id}")
-    public ResponseEntity<String> deleteMenuItem(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> deleteMenuItem(@PathVariable("id") String id) {
         String responseMessage = menuListServices.deleteFromMenuList(id);
         return ResponseEntity.ok(responseMessage); // 200 OK
     }
@@ -116,6 +116,16 @@ public class AdminController {
                 passwordEncoder.encode(newCustomUserRequest.getCustomUser().getPassword()));
         NewCustomUserRequest createdUser = customUserDetailsServices.saveUser(newCustomUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser); // 201 Created
+    }
+
+    /**
+     * Fetches all menu items.
+     *
+     * @return ResponseEntity with the list of menu items.
+     */
+    @PostMapping("/fetch-users")
+    public ResponseEntity<List<NewCustomUserRequest>> fetchAllUsers() {
+        return ResponseEntity.ok(customUserDetailsServices.fetchAllUsers()); // 200 OK
     }
 
     /**

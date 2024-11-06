@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RequestMapping("/user")
 @RestController
 @Slf4j
@@ -26,4 +28,17 @@ public class UserController {
                 passwordEncoder.encode(newCustomUserRequest.getCustomUser().getPassword()));
         return customUserDetailsServices.saveUser(newCustomUserRequest);
     }
+
+    @PostMapping("/new-user-all") // Public End-Point; But after Integration It should be Private End point
+    public List<NewCustomUserRequest> addBulkNewUser(@RequestBody List<NewCustomUserRequest> newCustomUserRequests) {
+        // Encode passwords for all new users
+        newCustomUserRequests.forEach(newCustomUserRequest -> {
+            String encodedPassword = passwordEncoder.encode(newCustomUserRequest.getCustomUser().getPassword());
+            newCustomUserRequest.getCustomUser().setPassword(encodedPassword);
+        });
+
+        // Save the users
+        return customUserDetailsServices.saveUserAll(newCustomUserRequests);
+    }
+
 }
