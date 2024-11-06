@@ -1,9 +1,7 @@
 package org.app.restaurant.advicer;
 
-import org.app.restaurant.exception.UnAuthorizedRequestException;
-import org.app.restaurant.exception.UserAlreadyExistsException;
+import org.app.restaurant.exception.*;
 import org.app.restaurant.entity.ErrorResponse;
-import org.app.restaurant.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -36,5 +34,15 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public @ResponseBody ErrorResponse handleUnAuthorizedRequestException(UnAuthorizedRequestException ex) {
         return new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(CouponNotFoundException.class)
+    public @ResponseBody ErrorResponse handleCouponNotFound(CouponNotFoundException ex) {
+        return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(CouponAlreadyExistsException.class)
+    public @ResponseBody ErrorResponse handleCouponAlreadyExists(CouponAlreadyExistsException ex) {
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 }

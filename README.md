@@ -123,3 +123,16 @@ For any questions or feedback, please reach out to us:
 ---
 
 Feel free to modify or expand this template to better fit your project's specifics!
+
+
+
+- **Summary of Relationships** :
+1. Order and OrderDetails: A one-to-one relationship. Each Order has one associated OrderDetails. The Order entity contains a foreign key to OrderDetails.
+
+2. OrderDetails and MenuList: A many-to-many relationship. An OrderDetails can have multiple MenuList items, and a MenuList item can appear in many OrderDetails.
+
+3. OrderDetails and Tax: A many-to-many relationship. Multiple Tax items can be applied to an OrderDetails.
+
+4. OrderDetails and Coupon: A many-to-many relationship. Multiple Coupon items can be applied to an OrderDetails.
+
+5. OrderDetails and Order: The inverse side of the Order-OrderDetails relationship, represented by the mappedBy attribute in OrderDetails.
