@@ -24,7 +24,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_END_POINTS = {"/admin/fetch-all-menu", "/h2-console/**", "/auth/authenticate", "/user/new-user", "/user/new-user-all"};
+    private static final String[] PUBLIC_END_POINTS = {
+            "/admin/fetch-menus",
+            "/h2-console/**",
+            "/auth/authenticate",
+            "/user/new-user",
+            "/user/new-users",
+            "/taxes/fetch-taxes",
+            "/coupons/fetch-coupons"};
+
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -33,18 +41,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
-//        httpSecurity.csrf(AbstractHttpConfigurer::disable)
-//                .cors(Customizer.withDefaults())
-//                .authorizeHttpRequests(request-> request.requestMatchers(PUBLIC_END_POINTS).permitAll()
-//                        .requestMatchers("/admin/**").hasAnyAuthority(RoleType.ADMIN.getRoleName())
-//                        .requestMatchers("/user/**").hasAnyAuthority(RoleType.USER.getRoleName())
-//                        .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
-//                        .anyRequest().authenticated())
-//                .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authenticationProvider(authenticationProvider()).addFilterBefore(
-//                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class
-//                );
-        httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(request-> request.anyRequest().permitAll());
+        httpSecurity.csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(request-> request.requestMatchers(PUBLIC_END_POINTS).permitAll()
+                        .requestMatchers("/admin/**").hasAnyAuthority(RoleType.ADMIN.getRoleName())
+                        .requestMatchers("/user/**").hasAnyAuthority(RoleType.USER.getRoleName())
+                        .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
+                        .anyRequest().authenticated())
+                .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider()).addFilterBefore(
+                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class
+                );
+        //httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(request-> request.anyRequest().permitAll());
         return httpSecurity.build();
     }
     @Bean
