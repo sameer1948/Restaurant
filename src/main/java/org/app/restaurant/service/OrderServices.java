@@ -1,6 +1,8 @@
 package org.app.restaurant.service;
 
 import org.app.restaurant.constatnts.OrderStatus;
+import org.app.restaurant.dto.CouponAndDetailsRequest;
+import org.app.restaurant.dto.OrderAndDetailsRequest;
 import org.app.restaurant.entity.*;
 import org.app.restaurant.exception.CouponNotFoundException;
 import org.app.restaurant.exception.InvalidTotalPriceException;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.app.restaurant.utils.DateUtility.getCurrentDate;
 
@@ -62,7 +65,7 @@ public class OrderServices {
             }
         }
 
-        validateOrderTotalPrice(orderRequest);
+        //validateOrderTotalPrice(orderRequest);
 
         Order savedOrder = orderRepository.save(Order.builder()
                 .totalPrice(orderRequest.getTotalPrice())
@@ -70,6 +73,7 @@ public class OrderServices {
                 .orderStatus(OrderStatus.COMPLETED.name())
                 .orderBy(orderRequest.getOrderBy())
                 .build());
+
 
         OrderDetails savedOrderDetails = orderDetailsRepository.save(OrderDetails.builder()
                 .id(savedOrder.getId())
@@ -88,17 +92,35 @@ public class OrderServices {
 
         List<Order> orderList = new ArrayList<>();
         orders.forEach(order -> {
-            System.out.println(order.toString());
             orderList.add(createOrder(order));
         });
 
         return orderList;
     }
 
+    public Order fetchOrder(String orderId) {
+        Order order = orderRepository.findById(orderId).get();
+        OrderDetails orderDetails = orderDetailsRepository.findById(orderId).get();
+
+        order.setOrderDetails(orderDetails);
+
+        return order;
+    }
 
     public List<Order> fetchOrders() {
+        List<Order> orders = orderRepository.findAll();
 
-        return orderRepository.findAll();
+        return orders.stream().map(order -> {
+                OrderDetails details = orderDetailsRepository.findById(order.getId()).get();
+                return Order.builder()
+                        .id(order.getId())
+                        .totalPrice(order.getTotalPrice())
+                        .orderDate(order.getOrderDate())
+                        .orderStatus(order.getOrderStatus())
+                        .orderBy(order.getOrderBy())
+                        .orderDetails(details).build();
+        }).collect(Collectors.toList());
+
     }
 
     /**
@@ -152,31 +174,56 @@ public class OrderServices {
      *
      * @param order the order to validate
      */
-    private void validateOrderTotalPrice(Order order) {
-        double calculatedTotalPrice = 0.0;
+//    private void validateOrderTotalPrice(OrderAndDetailsRequest order) { // need to change the grand total.
+//        double calculatedTotalPrice = 0.0;
+//
+//        // Calculate the total price of the menu items
+//        for (MenuList menuItem : order.getOrderDetails().getMenuLists()) {
+//            calculatedTotalPrice += menuItem.getPrice() * menuItem.getQuantity();
+//        }
+//
+//        // Add the total tax to the calculated price
+//        for (Tax tax : order.getOrderDetails().getTaxList()) {
+//            calculatedTotalPrice += tax.getValue();
+//        }
+//
+//        // Apply coupon discount if applicable
+//        for (Coupon coupon : order.getOrderDetails().getCoupons()) {
+//            if (coupon.getIsPercentage()) {
+//                calculatedTotalPrice -= (calculatedTotalPrice * (coupon.getPercentage() / 100));
+//            } else if (coupon.getIsAmount()) {
+//                calculatedTotalPrice -= coupon.getAmount();
+//            }
+//        }
+//
+//        // Check if the calculated total matches the total price in the order
+//        if (Math.abs(calculatedTotalPrice - order.getTotalPrice()) > 0.01) {
+//            throw new InvalidTotalPriceException("Total price mismatch. Expected: " + calculatedTotalPrice + ", but got: " + order.getTotalPrice());
+//        }
+//    }
 
-        // Calculate the total price of the menu items
-        for (MenuList menuItem : order.getOrderDetails().getMenuLists()) {
-            calculatedTotalPrice += menuItem.getPrice() * menuItem.getQuantity();
-        }
 
-        // Add the total tax to the calculated price
-        for (Tax tax : order.getOrderDetails().getTaxList()) {
-            calculatedTotalPrice += tax.getValue();
-        }
+    public Order updateOrder(String orderId, Order updatedOrder) {
 
-        // Apply coupon discount if applicable
-        for (Coupon coupon : order.getOrderDetails().getCoupons()) {
-            if (coupon.getIsPercentage()) {
-                calculatedTotalPrice -= (calculatedTotalPrice * (coupon.getPercentage() / 100));
-            } else if (coupon.getIsAmount()) {
-                calculatedTotalPrice -= coupon.getAmount();
+        // Fetch the existing order from the database
+        Optional<Order> existingOrder = orderRepository.findById(orderId);
+
+        // If the order is found, update the fields
+        if (existingOrder.isPresent()) {
+            Order order = existingOrder.get();
+
+            // Example: Update only the fields that are provided in the request body
+            if (updatedOrder.getOrderStatus() != null) {
+                order.setOrderStatus(updatedOrder.getOrderStatus());
             }
-        }
+            // Save the updated order
+            int updatedRow = orderRepository.updateStatus(OrderStatus.CANCELLED.name(), order.getId());
 
-        // Check if the calculated total matches the total price in the order
-        if (Math.abs(calculatedTotalPrice - order.getTotalPrice()) > 0.01) {
-            throw new InvalidTotalPriceException("Total price mismatch. Expected: " + calculatedTotalPrice + ", but got: " + order.getTotalPrice());
+            // Return the updated order with a 200 OK status
+            return order;
+        } else {
+            // Return 404 Not Found if the order does not exist
+            return null;
         }
     }
 

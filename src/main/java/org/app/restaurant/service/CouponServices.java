@@ -24,12 +24,13 @@ public class CouponServices {
     private CouponDetailsRepository couponDetailsRepository;
 
     @Transactional
-    public CouponAndDetailsRequest createCoupon(CouponAndDetailsRequest request) throws IllegalArgumentException, CouponAlreadyExistsException{
+    public CouponAndDetailsRequest createCoupon(CouponAndDetailsRequest request) throws IllegalArgumentException, CouponAlreadyExistsException {
 
         if (request == null || request.getCoupon() == null || request.getCouponDetails() == null) {
             throw new IllegalArgumentException("Coupon or CouponDetails must not be null");
         }
 
+        // Check if the coupon already exists by name
         boolean couponExists = couponRepository.existsByCouponName(request.getCoupon().getCouponName());
         if (couponExists) {
             throw new CouponAlreadyExistsException("Coupon with the same name already exists!");
@@ -52,16 +53,21 @@ public class CouponServices {
     public List<CouponAndDetailsRequest> createCouponsFromList(List<CouponAndDetailsRequest> couponList) {
         return couponList.stream()
                 .map(request -> {
-                    // Detach the coupon object from the session if it's already managed
+                    // Avoid entity duplication by checking if the coupon exists
                     Coupon existingCoupon = couponRepository.findByCouponName(request.getCoupon().getCouponName());
                     if (existingCoupon != null) {
-                        // Detach the existing coupon to prevent NonUniqueObjectException
-//                        Session session = sessionFactory.getCurrentSession();
-//                        session.evict(existingCoupon);
-                        System.out.println(existingCoupon);
+                        // If the coupon already exists, we will skip saving it and directly use the existing coupon
+                        // We still need to set couponId for CouponDetails
+                        request.getCouponDetails().setCouponId(existingCoupon.getCouponId());
+                        CouponDetails savedCouponDetails = couponDetailsRepository.save(request.getCouponDetails());
+
+                        return CouponAndDetailsRequest.builder()
+                                .coupon(existingCoupon)  // Use existing coupon
+                                .couponDetails(savedCouponDetails)
+                                .build();
                     }
 
-                    // Save the Coupon first
+                    // Save the Coupon if it doesn't exist
                     Coupon savedCoupon = couponRepository.save(request.getCoupon());
 
                     // Set the couponId on couponDetails before saving

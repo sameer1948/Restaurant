@@ -1,6 +1,9 @@
 package org.app.restaurant.service;
 
+import org.app.restaurant.dto.CouponAndDetailsRequest;
 import org.app.restaurant.dto.TaxAndDetailsRequest;
+import org.app.restaurant.entity.Coupon;
+import org.app.restaurant.entity.CouponDetails;
 import org.app.restaurant.entity.Tax;
 import org.app.restaurant.entity.TaxDetails;
 import org.app.restaurant.repository.TaxDetailsRepository;
@@ -12,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.app.restaurant.utils.DateUtility.getCurrentDate;
 
@@ -59,8 +63,19 @@ public class TaxServices {
         }
     }
 
-    public List<Tax> getAllTaxes() {
-        return taxRepository.findAll();
+    public List<TaxAndDetailsRequest> getAllTaxes() {
+        List<Tax> taxes = taxRepository.findAll();
+
+        return taxes.stream()
+                .map(tax -> {
+                    Optional<TaxDetails> details = taxDetailsRepository.findById(tax.getTaxId());
+                    return TaxAndDetailsRequest.builder()
+                            .tax(tax)
+                            .taxDetails(details.isEmpty() ? null : details.get())
+                            .build();
+
+                })
+                .collect(Collectors.toList());
     }
 
     public Tax getTaxById(String id) {

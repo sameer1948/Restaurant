@@ -1,11 +1,9 @@
 package org.app.restaurant.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.app.restaurant.dto.NewCustomUserRequest;
-import org.app.restaurant.entity.CustomUser;
-import org.app.restaurant.entity.MenuList;
+import org.app.restaurant.dto.CustomUserAndDetails;
+import org.app.restaurant.entity.*;
 import org.app.restaurant.exception.UserAlreadyExistsException;
-import org.app.restaurant.entity.CustomUserDetails;
 import org.app.restaurant.exception.UserNotFoundException;
 import org.app.restaurant.repository.CustomUserDetailsRepository;
 import org.app.restaurant.repository.CustomUserRepository;
@@ -17,6 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -33,42 +34,42 @@ public class CustomUserDetailsServices implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User : " + username + " Not Found ...!"));
     }
 
-    public NewCustomUserRequest saveUser(NewCustomUserRequest newCustomUserRequest) throws UserAlreadyExistsException { // Add Exception Handler
-        if (customUserRepository.findById(newCustomUserRequest.getCustomUser().getUsername()).isPresent()) {
-            throw new UserAlreadyExistsException("User : " + newCustomUserRequest.getCustomUser().getUsername() + " Already Existing...!");
+    public CustomUserAndDetails saveUser(CustomUserAndDetails customUserAndDetails) throws UserAlreadyExistsException { // Add Exception Handler
+        if (customUserRepository.findById(customUserAndDetails.getCustomUser().getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException("User : " + customUserAndDetails.getCustomUser().getUsername() + " Already Existing...!");
         }
 
-        newCustomUserRequest.getCustomUserDetails().setUsername(newCustomUserRequest.getCustomUser().getUsername());
-        CustomUserDetails customUserDetails = customUserDetailsRepository.save(newCustomUserRequest.getCustomUserDetails());
+        customUserAndDetails.getCustomUserDetails().setUsername(customUserAndDetails.getCustomUser().getUsername());
+        CustomUserDetails customUserDetails = customUserDetailsRepository.save(customUserAndDetails.getCustomUserDetails());
 
         if(!customUserDetails.getUsername().isEmpty()) {
-            return NewCustomUserRequest.builder()
-                     .customUser(customUserRepository.save(newCustomUserRequest.getCustomUser()))
+            return CustomUserAndDetails.builder()
+                     .customUser(customUserRepository.save(customUserAndDetails.getCustomUser()))
                      .customUserDetails(customUserDetails).build();
         }
-        throw new RuntimeException("Unable To Save User : " + newCustomUserRequest.getCustomUser().getUsername());
+        throw new RuntimeException("Unable To Save User : " + customUserAndDetails.getCustomUser().getUsername());
     }
 
-    public List<NewCustomUserRequest> saveUserAll(List<NewCustomUserRequest> newCustomUserRequests) throws UserAlreadyExistsException {
-        List<NewCustomUserRequest> savedUsers = new ArrayList<>();
+    public List<CustomUserAndDetails> saveUserAll(List<CustomUserAndDetails> customUserAndDetails) throws UserAlreadyExistsException {
+        List<CustomUserAndDetails> savedUsers = new ArrayList<>();
 
-        for (NewCustomUserRequest newCustomUserRequest : newCustomUserRequests) {
+        for (CustomUserAndDetails details : customUserAndDetails) {
             // Check if the user already exists
-            if (customUserRepository.findById(newCustomUserRequest.getCustomUser().getUsername()).isPresent()) {
-                throw new UserAlreadyExistsException("User: " + newCustomUserRequest.getCustomUser().getUsername() + " already exists!");
+            if (customUserRepository.findById(details.getCustomUser().getUsername()).isPresent()) {
+                throw new UserAlreadyExistsException("User: " + details.getCustomUser().getUsername() + " already exists!");
             }
 
             // Set username for custom user details
-            newCustomUserRequest.getCustomUserDetails().setUsername(newCustomUserRequest.getCustomUser().getUsername());
+            details.getCustomUserDetails().setUsername(details.getCustomUser().getUsername());
 
             // Save custom user details
-            CustomUserDetails customUserDetails = customUserDetailsRepository.save(newCustomUserRequest.getCustomUserDetails());
+            CustomUserDetails customUserDetails = customUserDetailsRepository.save(details.getCustomUserDetails());
 
             // Save the custom user
-            CustomUser savedUser = customUserRepository.save(newCustomUserRequest.getCustomUser());
+            CustomUser savedUser = customUserRepository.save(details.getCustomUser());
 
             // Build the response object
-            savedUsers.add(NewCustomUserRequest.builder()
+            savedUsers.add(CustomUserAndDetails.builder()
                     .customUser(savedUser)
                     .customUserDetails(customUserDetails)
                     .build());
@@ -92,19 +93,30 @@ public class CustomUserDetailsServices implements UserDetailsService {
         throw new UserAlreadyExistsException("User : " + username + " Not Found...!");
     }
 
-
-    public List<NewCustomUserRequest> fetchAllUsers() {
+    public List<CustomUserAndDetails> fetchUsers() {
         List<CustomUser> customUsers = customUserRepository.findAll();
-        List<NewCustomUserRequest> userRequests = new ArrayList<>();
+        List<CustomUserDetails> details = customUserDetailsRepository.findAll();
 
-        for (CustomUser customUser : customUsers) {
-            CustomUserDetails userDetails = customUserDetailsRepository.findByUsername(customUser.getUsername());
-            userRequests.add(NewCustomUserRequest.builder()
-                    .customUser(customUser)
-                    .customUserDetails(userDetails)
-                    .build());
+
+        if (customUsers.isEmpty() || details.isEmpty()) {
+            return new ArrayList<>();
         }
 
-        return userRequests;
+        // Create a map for fast lookup of CustomUser Details by username
+        Map<String, CustomUserDetails> detailsMap = details.stream()
+                .collect(Collectors.toMap(CustomUserDetails::getUsername, Function.identity()));
+
+        // Build the list of CustomUser AndDetails
+        return customUsers.stream()
+                .map(customUser  -> {
+                    CustomUserDetails userDetails = detailsMap.get(customUser .getUsername());
+                    return CustomUserAndDetails.builder()
+                            .customUser(customUser )
+                            .customUserDetails(userDetails) // Will be null if not found
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }
+
+
