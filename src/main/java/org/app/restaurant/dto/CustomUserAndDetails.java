@@ -11,7 +11,7 @@ import org.app.restaurant.entity.CustomUserDetails;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class NewCustomUserRequest {
+public class CustomUserAndDetails {
 
     private CustomUser customUser;  // Username Should be selected From Front-End
     private CustomUserDetails customUserDetails;

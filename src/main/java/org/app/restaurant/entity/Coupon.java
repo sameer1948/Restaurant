@@ -32,6 +32,7 @@ public class Coupon {
     private double percentage;
 
     private double maxDiscountAmount;
+    private double minOrderAmount;
     private Boolean status;  // This should be a boolean field
 
     private Timestamp startDate;

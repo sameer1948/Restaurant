@@ -18,5 +18,3 @@ public class OrderAndDetailsRequest {
     private OrderDetails orderDetails;
 
 }
-
-

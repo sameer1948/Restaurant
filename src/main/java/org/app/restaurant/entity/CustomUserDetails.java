@@ -3,7 +3,6 @@ package org.app.restaurant.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,10 +20,6 @@ public class CustomUserDetails {
     @Id
     @NotNull
     private String username;
-
-    @OneToOne
-    @JoinColumn(name = "username", referencedColumnName = "username", insertable = false, updatable = false)
-    private CustomUser customUser;
 
     @Column
     @NotNull
