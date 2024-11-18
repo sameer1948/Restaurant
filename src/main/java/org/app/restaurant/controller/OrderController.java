@@ -36,10 +36,29 @@ public class OrderController {
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(orderServices.createOrders(orders));
     }
 
+    @GetMapping("/fetch-order/{orderId}")
+    private ResponseEntity<Order> fetchOrder(@PathVariable("orderId") String orderId) {
+        return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(orderServices.fetchOrder(orderId));
+    }
+
 
     @GetMapping("/fetch-orders")
     private ResponseEntity<List<Order>> fetchOrderAll() {
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(orderServices.fetchOrders());
+    }
+
+
+    // PATCH mapping to update an order
+    @PatchMapping("/update-order/{id}")
+    public ResponseEntity<Order> updateOrder(@PathVariable("id") String orderId, @RequestBody Order order) {
+        Order updatedOrder = orderServices.updateOrder(orderId, order);
+        if (updatedOrder != null) {
+            // Return the updated order with a 200 OK status
+            return ResponseEntity.status(HttpStatus.OK).body(updatedOrder);
+        } else {
+            // Return 404 Not Found if the order does not exist
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     /**

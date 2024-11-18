@@ -18,7 +18,7 @@ public class CouponController {
     @Autowired
     private CouponServices couponServices;
 
-    @PostMapping(value = "/add-coupon", headers = {"Content-Type=application/json"})
+    @PostMapping(value = "/add-coupon")
     public ResponseEntity<?> createCoupon(@Valid @RequestBody CouponAndDetailsRequest request) {
         try {
             // Basic validation: Check if the request contains the necessary coupon and couponDetails objects.
@@ -43,7 +43,7 @@ public class CouponController {
         return new ResponseEntity<>(savedCoupons, HttpStatus.CREATED); // 201 Created
     }
 
-    @GetMapping("fetch-coupons")
+    @GetMapping("/fetch-coupons")
     public ResponseEntity<List<CouponAndDetailsRequest>> getAllCouponsWithDetails() {
         List<CouponAndDetailsRequest> couponsWithDetails = couponServices.getAllCouponsWithDetails();
         if (couponsWithDetails.isEmpty()) {
@@ -52,7 +52,7 @@ public class CouponController {
         return new ResponseEntity<>(couponsWithDetails, HttpStatus.OK); // 200 OK
     }
 
-    @GetMapping("fetch-coupon/{couponId}")
+    @GetMapping("/fetch-coupon/{couponId}")
     public ResponseEntity<CouponAndDetailsRequest> getCouponWithDetailsById(@PathVariable String couponId) {
         CouponAndDetailsRequest couponWithDetails = couponServices.getCouponWithDetailsById(couponId);
         if (couponWithDetails == null) {
@@ -61,7 +61,7 @@ public class CouponController {
         return new ResponseEntity<>(couponWithDetails, HttpStatus.OK); // 200 OK
     }
 
-    @DeleteMapping("remove-coupon/{couponId}")
+    @DeleteMapping("/remove-coupon/{couponId}")
     public ResponseEntity<String> deleteCoupon(@PathVariable String couponId) { // Coupon Can not be Deleted , It should be Disabled
         boolean isDeleted = couponServices.deleteCoupon(couponId);
         if (isDeleted) {

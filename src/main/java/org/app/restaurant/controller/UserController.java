@@ -1,7 +1,7 @@
 package org.app.restaurant.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.app.restaurant.dto.NewCustomUserRequest;
+import org.app.restaurant.dto.CustomUserAndDetails;
 import org.app.restaurant.service.CustomUserDetailsServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,22 +23,22 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/new-user") // Public End-Point; But after Integration It should be Private End point
-    public NewCustomUserRequest addNewUser(@RequestBody NewCustomUserRequest newCustomUserRequest) {
-        newCustomUserRequest.getCustomUser().setPassword(
-                passwordEncoder.encode(newCustomUserRequest.getCustomUser().getPassword()));
-        return customUserDetailsServices.saveUser(newCustomUserRequest);
+    public CustomUserAndDetails addNewUser(@RequestBody CustomUserAndDetails customUserAndDetails) {
+        customUserAndDetails.getCustomUser().setPassword(
+                passwordEncoder.encode(customUserAndDetails.getCustomUser().getPassword()));
+        return customUserDetailsServices.saveUser(customUserAndDetails);
     }
 
-    @PostMapping("/new-user-all") // Public End-Point; But after Integration It should be Private End point
-    public List<NewCustomUserRequest> addBulkNewUser(@RequestBody List<NewCustomUserRequest> newCustomUserRequests) {
+    @PostMapping("/new-users") // Public End-Point; But after Integration It should be Private End point
+    public List<CustomUserAndDetails> addBulkNewUser(@RequestBody List<CustomUserAndDetails> customUserAndDetails) {
         // Encode passwords for all new users
-        newCustomUserRequests.forEach(newCustomUserRequest -> {
-            String encodedPassword = passwordEncoder.encode(newCustomUserRequest.getCustomUser().getPassword());
-            newCustomUserRequest.getCustomUser().setPassword(encodedPassword);
+        customUserAndDetails.forEach(details -> {
+            String encodedPassword = passwordEncoder.encode(details.getCustomUser().getPassword());
+            details.getCustomUser().setPassword(encodedPassword);
         });
 
         // Save the users
-        return customUserDetailsServices.saveUserAll(newCustomUserRequests);
+        return customUserDetailsServices.saveUserAll(customUserAndDetails);
     }
 
 }

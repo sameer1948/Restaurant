@@ -1,7 +1,7 @@
 package org.app.restaurant.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.app.restaurant.dto.NewCustomUserRequest;
+import org.app.restaurant.dto.CustomUserAndDetails;
 import org.app.restaurant.entity.CustomUser;
 import org.app.restaurant.entity.MenuList;
 import org.app.restaurant.exception.UserNotFoundException;
@@ -107,14 +107,14 @@ public class AdminController {
     /**
      * Adds a new user to the system.
      *
-     * @param newCustomUserRequest the request object containing user details.
+     * @param customUserAndDetails the request object containing user details.
      * @return ResponseEntity with the created user details and status information.
      */
     @PostMapping("/new-user")
-    public ResponseEntity<NewCustomUserRequest> addNewUser(@RequestBody NewCustomUserRequest newCustomUserRequest) {
-        newCustomUserRequest.getCustomUser().setPassword(
-                passwordEncoder.encode(newCustomUserRequest.getCustomUser().getPassword()));
-        NewCustomUserRequest createdUser = customUserDetailsServices.saveUser(newCustomUserRequest);
+    public ResponseEntity<CustomUserAndDetails> addNewUser(@RequestBody CustomUserAndDetails customUserAndDetails) {
+        customUserAndDetails.getCustomUser().setPassword(
+                passwordEncoder.encode(customUserAndDetails.getCustomUser().getPassword()));
+        CustomUserAndDetails createdUser = customUserDetailsServices.saveUser(customUserAndDetails);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser); // 201 Created
     }
 
@@ -124,8 +124,8 @@ public class AdminController {
      * @return ResponseEntity with the list of menu items.
      */
     @PostMapping("/fetch-users")
-    public ResponseEntity<List<NewCustomUserRequest>> fetchAllUsers() {
-        return ResponseEntity.ok(customUserDetailsServices.fetchAllUsers()); // 200 OK
+    public ResponseEntity<List<CustomUserAndDetails>> fetchAllUsers() {
+        return ResponseEntity.ok(customUserDetailsServices.fetchUsers()); // 200 OK
     }
 
     /**
