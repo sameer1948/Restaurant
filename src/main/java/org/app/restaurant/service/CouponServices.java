@@ -50,7 +50,7 @@ public class CouponServices {
     }
 
     @Transactional
-    public List<CouponAndDetailsRequest> createCouponsFromList(List<CouponAndDetailsRequest> couponList) {
+    public List<CouponAndDetailsRequest> createCouponsFromList(List<CouponAndDetailsRequest> couponList) throws IllegalArgumentException, CouponAlreadyExistsException {
         return couponList.stream()
                 .map(request -> {
                     // Avoid entity duplication by checking if the coupon exists
@@ -82,7 +82,7 @@ public class CouponServices {
                 .collect(Collectors.toList());
     }
 
-    public List<CouponAndDetailsRequest> getAllCouponsWithDetails() {
+    public List<CouponAndDetailsRequest> fetchCoupons() {
         List<Coupon> coupons = couponRepository.findAll();
 
         // Fetch CouponDetails for each coupon in a more efficient manner
@@ -97,17 +97,32 @@ public class CouponServices {
                 .collect(Collectors.toList());
     }
 
-    public CouponAndDetailsRequest getCouponWithDetailsById(String couponId) {
+    public Optional<CouponAndDetailsRequest> fetchCoupon(String couponId) {
         Optional<Coupon> coupon = couponRepository.findById(couponId);
         if (coupon.isPresent()) {
             // Fetch the CouponDetails for the given couponId directly
             List<CouponDetails> details = couponDetailsRepository.findByCouponId(couponId);
-            return CouponAndDetailsRequest.builder()
+            return Optional.of(CouponAndDetailsRequest.builder()
                     .coupon(coupon.get())
                     .couponDetails(details.isEmpty() ? null : details.get(0))
-                    .build();
+                    .build());
         }
-        return null; // You might consider throwing an exception or returning an Optional
+        return Optional.empty();
+    }
+
+    public Optional<CouponAndDetailsRequest> updateCoupon(CouponAndDetailsRequest request) {
+        Optional<Coupon> coupon = couponRepository.findById(request.getCoupon().getCouponId());
+        if (coupon.isPresent()) {
+            // Fetch the CouponDetails for the given couponId directly
+            Coupon savedCoupon = couponRepository.save(request.getCoupon());
+            CouponDetails savedDetails = couponDetailsRepository.save(request.getCouponDetails());
+
+            return Optional.of(CouponAndDetailsRequest.builder()
+                    .coupon(savedCoupon)
+                    .couponDetails(savedDetails)
+                    .build());
+        }
+        return Optional.empty();
     }
 
     @Transactional

@@ -16,8 +16,11 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.app.restaurant.constatnts.Constants.*;
 
 @Service
 @Slf4j
@@ -31,12 +34,12 @@ public class CustomUserDetailsServices implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return customUserRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User : " + username + " Not Found ...!"));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NAME_NOT_FOUND.replace(OPT_STRING, username)));
     }
 
     public CustomUserAndDetails saveUser(CustomUserAndDetails customUserAndDetails) throws UserAlreadyExistsException { // Add Exception Handler
         if (customUserRepository.findById(customUserAndDetails.getCustomUser().getUsername()).isPresent()) {
-            throw new UserAlreadyExistsException("User : " + customUserAndDetails.getCustomUser().getUsername() + " Already Existing...!");
+            throw new UserAlreadyExistsException(USER_NAME_EXISTED.replace(OPT_STRING, customUserAndDetails.getCustomUser().getUsername()));
         }
 
         customUserAndDetails.getCustomUserDetails().setUsername(customUserAndDetails.getCustomUser().getUsername());
@@ -50,13 +53,13 @@ public class CustomUserDetailsServices implements UserDetailsService {
         throw new RuntimeException("Unable To Save User : " + customUserAndDetails.getCustomUser().getUsername());
     }
 
-    public List<CustomUserAndDetails> saveUserAll(List<CustomUserAndDetails> customUserAndDetails) throws UserAlreadyExistsException {
+    public List<CustomUserAndDetails> saveUsers(List<CustomUserAndDetails> customUserAndDetails) throws UserAlreadyExistsException {
         List<CustomUserAndDetails> savedUsers = new ArrayList<>();
 
         for (CustomUserAndDetails details : customUserAndDetails) {
             // Check if the user already exists
             if (customUserRepository.findById(details.getCustomUser().getUsername()).isPresent()) {
-                throw new UserAlreadyExistsException("User: " + details.getCustomUser().getUsername() + " already exists!");
+                throw new UserAlreadyExistsException(USER_NAME_EXISTED.replace(OPT_STRING, details.getCustomUser().getUsername()));
             }
 
             // Set username for custom user details
@@ -78,19 +81,19 @@ public class CustomUserDetailsServices implements UserDetailsService {
         return savedUsers;
     }
 
-
-    public CustomUser changeRole(CustomUser customUser) throws UserNotFoundException {
-        if (customUserRepository.findById(customUser.getUsername()).isPresent()) {
-            customUserRepository.save(customUser); // change update Logic
+    public Optional<CustomUserAndDetails> fetchUser(String username) {
+        Optional<CustomUser> savedUser = customUserRepository.findByUsername((username));
+        if (savedUser.isPresent()) {
+            CustomUserDetails savedDetails = customUserDetailsRepository.findByUsername(username);
+            savedUser.get().getPassword();
+            return Optional.of(CustomUserAndDetails.builder()
+                    .customUser(savedUser.get())
+                    .customUserDetails(savedDetails)
+                    .build());
+        } else {
+            return Optional.empty();
         }
-        throw new UserAlreadyExistsException("User : " + customUser.getUsername() + " Not Found...!");
-    }
 
-    public String deleteUserById(String username) throws UserNotFoundException {
-        if (customUserRepository.findById(username).isPresent()) {
-            customUserRepository.deleteById(username); // change delete Logic
-        }
-        throw new UserAlreadyExistsException("User : " + username + " Not Found...!");
     }
 
     public List<CustomUserAndDetails> fetchUsers() {
@@ -112,11 +115,31 @@ public class CustomUserDetailsServices implements UserDetailsService {
                     CustomUserDetails userDetails = detailsMap.get(customUser .getUsername());
                     return CustomUserAndDetails.builder()
                             .customUser(customUser )
-                            .customUserDetails(userDetails) // Will be null if not found
+                            .customUserDetails(userDetails) // It Will be null if not found
                             .build();
                 })
                 .collect(Collectors.toList());
     }
+
+
+    public CustomUserAndDetails updateUser(CustomUserAndDetails userAndDetails) throws UserNotFoundException {
+        if (customUserRepository.findById(userAndDetails.getCustomUser().getUsername()).isPresent()) {
+            CustomUser savedUser = customUserRepository.save(userAndDetails.getCustomUser()); // change update Logic
+            CustomUserDetails savedDetails = customUserDetailsRepository.save(userAndDetails.getCustomUserDetails());
+            return CustomUserAndDetails.builder().customUser(savedUser).customUserDetails(savedDetails).build();
+        }
+        throw new UserNotFoundException(USER_NAME_NOT_FOUND.replace(OPT_STRING, userAndDetails.getCustomUser().getUsername()));
+    }
+
+    public String deleteUser(String username) throws UserNotFoundException {
+        if (customUserRepository.findById(username).isPresent()) {
+            customUserRepository.deleteById(username); // change delete Logic
+            customUserDetailsRepository.deleteById(username);
+            return "User Removed Successfully...!";
+        }
+        throw new UserNotFoundException(USER_NAME_NOT_FOUND.replace(OPT_STRING, username));
+    }
+
 }
 
 

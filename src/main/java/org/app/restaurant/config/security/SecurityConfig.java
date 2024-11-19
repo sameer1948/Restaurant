@@ -25,7 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private static final String[] PUBLIC_END_POINTS = {
-            "/admin/fetch-menus",
+            "/menu/fetch-menus",
             "/h2-console/**",
             "/auth/authenticate",
             "/user/new-user",
@@ -44,7 +44,7 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request-> request.requestMatchers(PUBLIC_END_POINTS).permitAll()
-                        .requestMatchers("/admin/**").hasAnyAuthority(RoleType.ADMIN.getRoleName())
+                        .requestMatchers("/menu/**").hasAnyAuthority(RoleType.ADMIN.getRoleName())
                         .requestMatchers("/user/**").hasAnyAuthority(RoleType.USER.getRoleName())
                         .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
                         .anyRequest().authenticated())

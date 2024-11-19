@@ -32,14 +32,22 @@ public class MenuListServices {
         return menuListRepository.saveAll(menuList);
     }
 
-    public MenuList editMenuList(MenuList menuList) {
+    public List<MenuList> getMenuList() {
+        return menuListRepository.findAll();
+    }
+
+    public Optional<MenuList> getMenuById(String id) {
+        return menuListRepository.findById(id);
+    }
+
+    public Optional<MenuList> editMenuList(MenuList menuList) {
         Optional<MenuList> menuById = menuListRepository.findById(menuList.getId());
         log.info("editMenuList : -> " + menuById);
         if (menuById.isPresent()) {
             menuListRepository.deleteById(menuList.getId()); // H2 DataBaseIssue.
-            return menuListRepository.save(menuList);
+            return Optional.of(menuListRepository.save(menuList));
         } else {
-           return null;
+            return Optional.empty();
         }
     }
 
@@ -54,11 +62,4 @@ public class MenuListServices {
         }
     }
 
-    public List<MenuList> getMenuList() {
-        return menuListRepository.findAll();
-    }
-
-    public Optional<MenuList> getMenuById(String id) {
-        return menuListRepository.findById(id);
-    }
 }

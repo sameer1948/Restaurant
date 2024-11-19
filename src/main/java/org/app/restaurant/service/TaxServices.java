@@ -1,9 +1,6 @@
 package org.app.restaurant.service;
 
-import org.app.restaurant.dto.CouponAndDetailsRequest;
 import org.app.restaurant.dto.TaxAndDetailsRequest;
-import org.app.restaurant.entity.Coupon;
-import org.app.restaurant.entity.CouponDetails;
 import org.app.restaurant.entity.Tax;
 import org.app.restaurant.entity.TaxDetails;
 import org.app.restaurant.repository.TaxDetailsRepository;
@@ -12,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,7 +26,7 @@ public class TaxServices {
     private TaxDetailsRepository taxDetailsRepository;
 
     @Transactional
-    public void createTaxAndDetails(TaxAndDetailsRequest request) {
+    public TaxAndDetailsRequest newTax(TaxAndDetailsRequest request) {
         if (request == null || request.getTax() == null || request.getTaxDetails() == null) {
             throw new IllegalArgumentException("Tax or TaxDetails must not be null.");
         }
@@ -44,11 +41,13 @@ public class TaxServices {
         taxDetails.setTaxId(savedTax.getTaxId());
         taxDetails.setTimeStamp(getCurrentDate());
 
-        taxDetailsRepository.save(taxDetails);
+        TaxDetails details = taxDetailsRepository.save(taxDetails);
+        return TaxAndDetailsRequest.builder().tax(savedTax).taxDetails(details).build();
     }
 
     @Transactional
-    public void bulkCreateTaxAndDetails(List<TaxAndDetailsRequest> requests) {
+    public List<TaxAndDetailsRequest> newTaxes(List<TaxAndDetailsRequest> requests) {
+        List<TaxAndDetailsRequest> savedTaxes = new ArrayList<>();
         if (requests == null || requests.isEmpty()) {
             throw new IllegalArgumentException("Request list cannot be null or empty.");
         }
@@ -59,11 +58,12 @@ public class TaxServices {
                 throw new IllegalArgumentException("Tax or TaxDetails must not be null in each request.");
             }
 
-            this.createTaxAndDetails(request);
+           savedTaxes.add(this.newTax(request));
         }
+        return savedTaxes;
     }
 
-    public List<TaxAndDetailsRequest> getAllTaxes() {
+    public List<TaxAndDetailsRequest> fetchTaxes() {
         List<Tax> taxes = taxRepository.findAll();
 
         return taxes.stream()
@@ -78,7 +78,7 @@ public class TaxServices {
                 .collect(Collectors.toList());
     }
 
-    public Tax getTaxById(String id) {
+    public Tax fetchTax(String id) {
         // Null check for ID
         if (id == null || id.isEmpty()) {
             throw new IllegalArgumentException("Tax ID must not be null or empty.");
