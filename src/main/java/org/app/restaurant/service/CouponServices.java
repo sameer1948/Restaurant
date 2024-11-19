@@ -1,5 +1,6 @@
 package org.app.restaurant.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.app.restaurant.dto.CouponAndDetailsRequest;
 import org.app.restaurant.entity.Coupon;
 import org.app.restaurant.entity.CouponDetails;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class CouponServices {
 
     @Autowired

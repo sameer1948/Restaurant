@@ -34,7 +34,14 @@ public class OrderController {
 
     @GetMapping("/fetch-order/{orderId}")
     public ResponseEntity<Order> fetchOrder(@PathVariable("orderId") String orderId) {
-        return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(orderServices.fetchOrder(orderId));
+        Order fetchOrder = orderServices.fetchOrder(orderId);
+        if (fetchOrder != null) {
+            // Return the updated order with a 200 OK status
+            return ResponseEntity.status(HttpStatus.OK).body(fetchOrder);
+        } else {
+            // Return 404 Not Found if the order does not exist
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
 
@@ -43,6 +50,17 @@ public class OrderController {
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(orderServices.fetchOrders());
     }
 
+    @PatchMapping("/cancel-order/{id}")
+    public ResponseEntity<Order> cancelOrder(@PathVariable("id") String orderId) {
+        Order updatedOrder = orderServices.cancelOrder(orderId);
+        if (updatedOrder != null) {
+            // Return the updated order with a 200 OK status
+            return ResponseEntity.status(HttpStatus.OK).body(updatedOrder);
+        } else {
+            // Return 404 Not Found if the order does not exist
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 
     // PATCH mapping to update an order
     @PatchMapping("/update-order/{id}")
@@ -50,7 +68,7 @@ public class OrderController {
         Order updatedOrder = orderServices.updateOrder(orderId, order);
         if (updatedOrder != null) {
             // Return the updated order with a 200 OK status
-            return ResponseEntity.status(HttpStatus.OK).body(updatedOrder);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(updatedOrder);
         } else {
             // Return 404 Not Found if the order does not exist
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

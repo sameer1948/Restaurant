@@ -42,9 +42,7 @@ public class MenuListServices {
 
     public Optional<MenuList> editMenuList(MenuList menuList) {
         Optional<MenuList> menuById = menuListRepository.findById(menuList.getId());
-        log.info("editMenuList : -> " + menuById);
         if (menuById.isPresent()) {
-            menuListRepository.deleteById(menuList.getId()); // H2 DataBaseIssue.
             return Optional.of(menuListRepository.save(menuList));
         } else {
             return Optional.empty();
@@ -53,10 +51,9 @@ public class MenuListServices {
 
     public String deleteFromMenuList(String id) {
         Optional<MenuList> menuById = menuListRepository.findById(id);
-        log.info("deleteFromMenuList : -> " + menuById);
         if (menuById.isPresent()) {
-             menuListRepository.deleteById(id);
-             return String.format("Menu Id : %s is Successfully Removed.", id);
+             //menuListRepository.deleteById(id);
+             return String.format("Menu Id : %s Can not be Removed.", id);
         } else {
             return null;
         }

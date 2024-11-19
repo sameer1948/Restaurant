@@ -1,11 +1,9 @@
 package org.app.restaurant.service;
 
+import jakarta.transaction.Transactional;
 import org.app.restaurant.constatnts.OrderStatus;
-import org.app.restaurant.dto.CouponAndDetailsRequest;
-import org.app.restaurant.dto.OrderAndDetailsRequest;
 import org.app.restaurant.entity.*;
 import org.app.restaurant.exception.CouponNotFoundException;
-import org.app.restaurant.exception.InvalidTotalPriceException;
 import org.app.restaurant.exception.MenuItemNotFoundException;
 import org.app.restaurant.exception.TaxNotFoundException;
 import org.app.restaurant.repository.*;
@@ -16,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -99,12 +98,17 @@ public class OrderServices {
     }
 
     public Order fetchOrder(String orderId) {
-        Order order = orderRepository.findById(orderId).get();
-        OrderDetails orderDetails = orderDetailsRepository.findById(orderId).get();
+        try {
+            Order order = orderRepository.findById(orderId).get();
 
-        order.setOrderDetails(orderDetails);
+            OrderDetails orderDetails = orderDetailsRepository.findById(orderId).get();
 
-        return order;
+            order.setOrderDetails(orderDetails);
+
+            return order;
+        } catch (NoSuchElementException exception){
+            return null;
+        }
     }
 
     public List<Order> fetchOrders() {
@@ -217,8 +221,27 @@ public class OrderServices {
                 order.setOrderStatus(updatedOrder.getOrderStatus());
             }
             // Save the updated order
-            int updatedRow = orderRepository.updateStatus(OrderStatus.CANCELLED.name(), order.getId());
+            orderRepository.updateOrderStatus(OrderStatus.CANCELLED.name(), order.getId());
 
+            // Return the updated order with a 200 OK status
+            return order;
+        } else {
+            // Return 404 Not Found if the order does not exist
+            return null;
+        }
+    }
+
+    @Transactional  // Ensure this method runs within a transaction
+    public Order cancelOrder(String orderId) {
+        // Fetch the existing order from the database
+        Optional<Order> existingOrder = orderRepository.findById(orderId);
+
+        // If the order is found, update the fields
+        if (existingOrder.isPresent()) {
+            Order order = existingOrder.get();
+
+            // Save the updated order
+            orderRepository.updateOrderStatus(OrderStatus.CANCELLED.name(), order.getId());
             // Return the updated order with a 200 OK status
             return order;
         } else {

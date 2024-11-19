@@ -56,10 +56,10 @@ public class TaxController {
         }
     }
 
-    @PutMapping("/update-tax/{id}")
-    public ResponseEntity<?> updateTax(@PathVariable String id, @RequestBody Tax taxDetails) {
+    @PatchMapping("/update-tax")
+    public ResponseEntity<?> updateTax(@RequestBody TaxAndDetailsRequest request) {
         try {
-            Tax updatedTax = taxServices.updateTax(id, taxDetails);
+            TaxAndDetailsRequest updatedTax = taxServices.updateTax(request);
             return new ResponseEntity<>(updatedTax, HttpStatus.ACCEPTED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST); // 400 Bad Request with message

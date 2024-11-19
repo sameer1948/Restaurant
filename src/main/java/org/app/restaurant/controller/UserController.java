@@ -83,7 +83,7 @@ public class UserController {
     public ResponseEntity<CustomUserAndDetails> updateUser(@RequestBody CustomUserAndDetails customUserAndDetails) {
         try {
             CustomUserAndDetails updatedUser = customUserDetailsServices.updateUser(customUserAndDetails);
-            return ResponseEntity.ok(updatedUser); // 200 OK
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(updatedUser); // 200 OK
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 404 Not Found
         } catch (Exception e) {

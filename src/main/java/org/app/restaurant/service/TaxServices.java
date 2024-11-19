@@ -87,28 +87,29 @@ public class TaxServices {
         return taxRepository.findById(id).orElse(null);
     }
 
-    public Tax updateTax(String id, Tax taxDetails) {
-        // Null checks for ID and taxDetails
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Tax ID must not be null or empty.");
+    public TaxAndDetailsRequest updateTax(TaxAndDetailsRequest request) {
+
+        if (request == null || request.getTaxDetails() == null || request.getTax() == null) {
+            throw new IllegalArgumentException("Tax or Tax details must not be null.");
         }
-        if (taxDetails == null) {
-            throw new IllegalArgumentException("Tax details must not be null.");
+        // Null checks for ID and taxDetails
+        if (request.getTax().getTaxId() == null || request.getTax().getTaxId().isEmpty()) {
+            throw new IllegalArgumentException("Tax ID must not be null or empty.");
         }
 
         // Check if Tax exists before updating
-        Tax tax = taxRepository.findById(id).orElse(null);
-        if (tax != null) {
-            tax.setTaxType(taxDetails.getTaxType());
-            tax.setValue(taxDetails.getValue());
-            tax.setStatus(taxDetails.isStatus());
-            return taxRepository.save(tax);
+        Optional<Tax> tax = taxRepository.findById(request.getTax().getTaxId());
+        if (tax.isPresent()) {
+            return TaxAndDetailsRequest.builder()
+                    .tax(taxRepository.save(request.getTax()))
+                    .taxDetails(taxDetailsRepository.save(request.getTaxDetails()))
+                    .build();
         } else {
             throw new IllegalArgumentException("Tax with the given ID does not exist.");
         }
     }
 
-    public void deleteTax(String id) {
+    public void deleteTax(String id) {  // Can not be Deleted , It should be Disabled
         // Null check for ID
         if (id == null || id.isEmpty()) {
             throw new IllegalArgumentException("Tax ID must not be null or empty.");

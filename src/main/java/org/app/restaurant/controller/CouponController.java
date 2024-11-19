@@ -1,6 +1,7 @@
 package org.app.restaurant.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.app.restaurant.dto.CouponAndDetailsRequest;
 import org.app.restaurant.exception.CouponAlreadyExistsException;
 import org.app.restaurant.service.CouponServices;
@@ -16,6 +17,7 @@ import static org.app.restaurant.constatnts.Constants.UN_EXP_ERROR;
 
 @RestController
 @RequestMapping("/coupons")
+@Slf4j
 public class CouponController {
 
     @Autowired
@@ -58,11 +60,11 @@ public class CouponController {
         return new ResponseEntity<>(couponsWithDetails, HttpStatus.OK); // 200 OK
     }
 
-    @PatchMapping("/update-coupon/")
+    @PatchMapping("/update-coupon")
     public ResponseEntity<CouponAndDetailsRequest> updateCoupon(@RequestBody CouponAndDetailsRequest request) {
         Optional<CouponAndDetailsRequest> couponDetails = couponServices.updateCoupon(request);
         return couponDetails
-                .map(couponDetail -> new ResponseEntity<>(couponDetail, HttpStatus.OK))
+                .map(couponDetail -> new ResponseEntity<>(couponDetail, HttpStatus.ACCEPTED))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 

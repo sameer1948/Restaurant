@@ -1,8 +1,8 @@
 package org.app.restaurant.repository;
 
-import jakarta.transaction.Transactional;
 import org.app.restaurant.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -19,8 +19,9 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Query("SELECT o FROM Order o WHERE o.totalPrice = :totalPrice AND o.orderBy = :orderBy")
     Optional<Order> findByOrderDetails(@Param("totalPrice") double totalPrice, @Param("orderBy") String orderBy);
 
-    @Transactional
+    @Modifying
     @Query("UPDATE Order o SET o.orderStatus = :orderStatus WHERE o.id = :orderId")
-    int updateStatus(@Param("orderStatus") String orderStatus, @Param("orderId") String orderId);
+    void updateOrderStatus(@Param("orderStatus") String orderStatus, @Param("orderId") String orderId);
+
 }
 

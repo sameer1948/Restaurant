@@ -80,7 +80,7 @@ public class MenuController {
     @PatchMapping("/update-menu")
     public ResponseEntity<MenuList> updateMenuItem(@RequestBody MenuList menuList) {
         Optional<MenuList> menuById = menuListServices.editMenuList(menuList);
-        return menuById.map(ResponseEntity::ok) // 200 OK
+        return menuById.map(menu -> new ResponseEntity<>(menu, HttpStatus.ACCEPTED)) // 200 OK
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)); // 404 Not Found
     }
 
@@ -90,7 +90,7 @@ public class MenuController {
      * @param id the ID of the menu item to be deleted.
      * @return ResponseEntity with a success message.
      */
-    @DeleteMapping("/delete-menu/{id}")
+    @DeleteMapping("/delete-menu/{id}") // Can not be Deleted , It should be Disabled
     public ResponseEntity<String> deleteMenuItem(@PathVariable("id") String id) {
         String responseMessage = menuListServices.deleteFromMenuList(id);
         return ResponseEntity.ok(responseMessage); // 200 OK

@@ -131,7 +131,7 @@ public class CustomUserDetailsServices implements UserDetailsService {
         throw new UserNotFoundException(USER_NAME_NOT_FOUND.replace(OPT_STRING, userAndDetails.getCustomUser().getUsername()));
     }
 
-    public String deleteUser(String username) throws UserNotFoundException {
+    public String deleteUser(String username) throws UserNotFoundException { // Can not be Deleted , It should be Disabled
         if (customUserRepository.findById(username).isPresent()) {
             customUserRepository.deleteById(username); // change delete Logic
             customUserDetailsRepository.deleteById(username);
