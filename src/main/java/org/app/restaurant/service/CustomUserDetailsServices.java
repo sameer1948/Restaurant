@@ -98,27 +98,17 @@ public class CustomUserDetailsServices implements UserDetailsService {
 
     public List<CustomUserAndDetails> fetchUsers() {
         List<CustomUser> customUsers = customUserRepository.findAll();
-        List<CustomUserDetails> details = customUserDetailsRepository.findAll();
-
-
-        if (customUsers.isEmpty() || details.isEmpty()) {
-            return new ArrayList<>();
+        customUsers.stream().forEach(System.out::println);
+        if (customUsers.isEmpty()) {
+            return null;
         }
 
-        // Create a map for fast lookup of CustomUser Details by username
-        Map<String, CustomUserDetails> detailsMap = details.stream()
-                .collect(Collectors.toMap(CustomUserDetails::getUsername, Function.identity()));
+        return customUsers.stream().map(customUser -> {
+            CustomUserDetails details = customUserDetailsRepository.findByUsername(customUser.getUsername());
+            return CustomUserAndDetails.builder().customUser(customUser).customUserDetails(details).build();
 
-        // Build the list of CustomUser AndDetails
-        return customUsers.stream()
-                .map(customUser  -> {
-                    CustomUserDetails userDetails = detailsMap.get(customUser .getUsername());
-                    return CustomUserAndDetails.builder()
-                            .customUser(customUser )
-                            .customUserDetails(userDetails) // It Will be null if not found
-                            .build();
-                })
-                .collect(Collectors.toList());
+        }).collect(Collectors.toList());
+
     }
 
 

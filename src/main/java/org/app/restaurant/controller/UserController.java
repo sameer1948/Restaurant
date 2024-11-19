@@ -55,7 +55,7 @@ public class UserController {
      *
      * @return ResponseEntity with the User.
      */
-    @PostMapping("/fetch-user/{userName}")
+    @GetMapping("/fetch-user/{userName}")
     public ResponseEntity<CustomUserAndDetails> fetchUserById(@PathVariable("userName") String userName) {
         Optional<CustomUserAndDetails> customUserAndDetails = customUserDetailsServices.fetchUser(userName);
         return customUserAndDetails.map(ResponseEntity::ok) // 200 OK
@@ -69,7 +69,13 @@ public class UserController {
      */
     @GetMapping("/fetch-users")
     public ResponseEntity<List<CustomUserAndDetails>> fetchUsers() {
-        return ResponseEntity.ok(customUserDetailsServices.fetchUsers()); // 200 OK
+        try {
+            List<CustomUserAndDetails> savedUsers = customUserDetailsServices.fetchUsers();
+            return savedUsers == null ? ResponseEntity.status(HttpStatus.NOT_FOUND).body(null) :
+                ResponseEntity.status(HttpStatus.ACCEPTED).body(savedUsers); // 200 ok
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
+        }
     }
 
 
