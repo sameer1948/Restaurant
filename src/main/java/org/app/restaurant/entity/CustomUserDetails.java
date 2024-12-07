@@ -1,9 +1,7 @@
 package org.app.restaurant.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,6 +31,18 @@ public class CustomUserDetails {
     @NotNull
     @Size(min = 1, max = 50)
     private String lastName;
+
+    @Column
+    @NotNull
+    @Size(min = 4, max = 6)
+    private String gender;
+
+    @Column
+    @NotNull
+    @Min(20)
+    @Max(50)
+    private int age;
+
 
     @Column
     @Email

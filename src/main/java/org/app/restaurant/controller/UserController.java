@@ -89,7 +89,26 @@ public class UserController {
     public ResponseEntity<CustomUserAndDetails> updateUser(@RequestBody CustomUserAndDetails customUserAndDetails) {
         try {
             CustomUserAndDetails updatedUser = customUserDetailsServices.updateUser(customUserAndDetails);
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(updatedUser); // 200 OK
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(updatedUser); // 202 ACCEPTED
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 404 Not Found
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
+        }
+    }
+
+    /**
+     * Updates the password of a specified user.
+     *
+     * @param username the user object containing the user's details and the new role to be assigned.
+     * @param password the user object containing the user's details and the new role to be assigned.
+     * @return ResponseEntity with the updated user request and status information.
+     */
+    @PatchMapping("/update-password/{username}")
+    public ResponseEntity<CustomUserAndDetails> updatePassword(@PathVariable("username") String username, @RequestBody String password) {
+        try {
+            CustomUserAndDetails updatedUser = customUserDetailsServices.updatePassword(username, passwordEncoder.encode(password));
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(updatedUser); // 202 ACCEPTED
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 404 Not Found
         } catch (Exception e) {
@@ -111,6 +130,7 @@ public class UserController {
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found"); // 404 Not Found
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred"); // 500 Internal Server Error
         }
     }

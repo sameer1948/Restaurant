@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.app.restaurant.entity.MenuList;
 import org.app.restaurant.exception.DuplicateMenuItemException;
+import org.app.restaurant.exception.MenuItemNotFoundException;
 import org.app.restaurant.repository.MenuListRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,13 +51,14 @@ public class MenuListServices {
         }
     }
 
-    public String deleteFromMenuList(String id) {
+    @Transactional
+    public String deleteFromMenuList(String id) throws MenuItemNotFoundException {
         Optional<MenuList> menuById = menuListRepository.findById(id);
         if (menuById.isPresent()) {
-             //menuListRepository.deleteById(id);
-             return String.format("Menu Id : %s Can not be Removed.", id);
+             menuListRepository.delete(menuById.get());
+             return String.format("Menu Id : %s Removed.", id);
         } else {
-            return null;
+            throw new MenuItemNotFoundException(String.format("Menu Id : %s Not Found.", id));
         }
     }
 

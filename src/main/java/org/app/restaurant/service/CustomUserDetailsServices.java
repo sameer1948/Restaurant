@@ -12,12 +12,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.app.restaurant.constatnts.Constants.*;
@@ -121,10 +120,25 @@ public class CustomUserDetailsServices implements UserDetailsService {
         throw new UserNotFoundException(USER_NAME_NOT_FOUND.replace(OPT_STRING, userAndDetails.getCustomUser().getUsername()));
     }
 
-    public String deleteUser(String username) throws UserNotFoundException { // Can not be Deleted , It should be Disabled
-        if (customUserRepository.findById(username).isPresent()) {
-            customUserRepository.deleteById(username); // change delete Logic
-            customUserDetailsRepository.deleteById(username);
+    public CustomUserAndDetails updatePassword(String username, String password) throws UserNotFoundException {
+        Optional<CustomUser> optUser = customUserRepository.findById(username);
+        if (optUser.isPresent()) {
+            CustomUser user = optUser.get();
+            user.setPassword(password);
+            CustomUser savedUser = customUserRepository.save(user); // change update Logic
+            CustomUserDetails savedDetails = customUserDetailsRepository.findByUsername(username);
+            return CustomUserAndDetails.builder().customUser(savedUser).customUserDetails(savedDetails).build();
+        }
+        throw new UserNotFoundException(USER_NAME_NOT_FOUND.replace(OPT_STRING, username));
+    }
+
+
+    @Transactional
+    public String deleteUser(String username) throws UserNotFoundException {
+        Optional<CustomUser> userOptional = customUserRepository.findById(username);
+        if (userOptional.isPresent()) {
+            customUserDetailsRepository.deleteByUsername(username);
+            customUserRepository.delete(userOptional.get());
             return "User Removed Successfully...!";
         }
         throw new UserNotFoundException(USER_NAME_NOT_FOUND.replace(OPT_STRING, username));

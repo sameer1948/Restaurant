@@ -3,6 +3,7 @@ package org.app.restaurant.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.app.restaurant.entity.MenuList;
+import org.app.restaurant.exception.MenuItemNotFoundException;
 import org.app.restaurant.service.MenuListServices;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -92,8 +93,15 @@ public class MenuController {
      */
     @DeleteMapping("/delete-menu/{id}") // Can not be Deleted , It should be Disabled
     public ResponseEntity<String> deleteMenuItem(@PathVariable("id") String id) {
-        String responseMessage = menuListServices.deleteFromMenuList(id);
-        return ResponseEntity.ok(responseMessage); // 200 OK
+        try {
+            String responseMessage = menuListServices.deleteFromMenuList(id);
+            return ResponseEntity.ok(responseMessage); // 200 OK
+        } catch (MenuItemNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Menu not found"); // 404 Not Found
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred"); // 500 Internal Server Error
+        }
     }
 
 }
