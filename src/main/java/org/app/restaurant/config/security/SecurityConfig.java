@@ -2,6 +2,7 @@ package org.app.restaurant.config.security;
 
 import org.app.restaurant.constatnts.RoleType;
 import org.app.restaurant.service.CustomUserDetailsServices;
+import org.app.restaurant.utils.AESPasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -63,9 +64,14 @@ public class SecurityConfig {
         return daoAuthenticationProvider;
     }
 
+//    @Bean
+//    public PasswordEncoder passwordEncoder(){
+//        return new BCryptPasswordEncoder();
+//    }
+
     @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
+    public PasswordEncoder passwordEncoder() {
+        return new AESPasswordEncoder(); // Use the custom AES password encoder
     }
 
     @Bean
