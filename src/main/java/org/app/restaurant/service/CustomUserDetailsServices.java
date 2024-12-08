@@ -97,7 +97,6 @@ public class CustomUserDetailsServices implements UserDetailsService {
 
     public List<CustomUserAndDetails> fetchUsers() {
         List<CustomUser> customUsers = customUserRepository.findAll();
-        customUsers.stream().forEach(System.out::println);
         if (customUsers.isEmpty()) {
             return null;
         }

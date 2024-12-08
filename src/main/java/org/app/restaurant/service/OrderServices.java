@@ -68,7 +68,7 @@ public class OrderServices {
 
         Order savedOrder = orderRepository.save(Order.builder()
                 .totalPrice(orderRequest.getTotalPrice())
-                .orderDate(getCurrentDate())
+                .orderDate(orderRequest.getOrderDate())
                 .orderStatus(OrderStatus.COMPLETED.name())
                 .orderBy(orderRequest.getOrderBy())
                 .build());

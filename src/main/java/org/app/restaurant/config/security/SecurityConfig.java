@@ -32,7 +32,24 @@ public class SecurityConfig {
             "/user/new-user",
             "/user/new-users",
             "/taxes/fetch-taxes",
-            "/coupons/fetch-coupons"};
+            "/coupons/fetch-coupons"
+    };
+
+    private static final String[] ADMIN_END_POINTS = {
+            "/coupons/remove-coupon/**",
+            "/menu/delete-menu/**",
+            "/orders/cancel-order/**",
+            "/taxes/remove-tax/**",
+            "/user/delete-user/**",
+    };
+
+    private static final String[] USER_END_POINTS = {
+            "/coupons/**",
+            "/menu/**",
+            "/orders/**",
+            "/taxes/**",
+            "/user/**",
+    };
 
 
     @Autowired
@@ -44,10 +61,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(request-> request.requestMatchers(PUBLIC_END_POINTS).permitAll()
-                        .requestMatchers("/menu/**").hasAnyAuthority(RoleType.ADMIN.getRoleName())
-                        .requestMatchers("/user/**").hasAnyAuthority(RoleType.ADMIN.getRoleName())
-                        .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
+                .authorizeHttpRequests(request-> request
+                        .requestMatchers(PUBLIC_END_POINTS).permitAll()
+                        .requestMatchers(ADMIN_END_POINTS).hasAuthority(RoleType.ADMIN.getRoleName())
+                        .requestMatchers(USER_END_POINTS).hasAnyAuthority(RoleType.ADMIN.getRoleName(), RoleType.USER.getRoleName())
                         .anyRequest().authenticated())
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(
