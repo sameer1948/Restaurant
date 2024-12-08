@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://sql.freedb.tech:3306/freedb_restaurant-db
+    username: freedb_sameer-1948
+    password: zcf5pz5pb@rE4&A
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+  security:
+    user:
+      name: prodAdmin
+      password: prodPassword
