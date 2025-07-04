@@ -2,4 +2,4 @@ spring:
   application:
     name: restaurant-application
   profiles:
-    active: test
+    active: prod
