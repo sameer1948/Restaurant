@@ -1,9 +1,12 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://sql.freedb.tech:3306/freedb_restaurant-db
-    username: freedb_sameer-1948
-    password: zcf5pz5pb@rE4&A
+#    url: jdbc:mysql://sql.freedb.tech:3306/freedb_restaurant-db
+#    username: freedb_sameer-1948
+#    password: zcf5pz5pb@rE4&A
+    url: jdbc:mysql://restaurant_crossrich:fbb7af82438d2ffb067a79640aaf5ac55db87a02@0r43t.h.filess.io:3307/restaurant_crossrich
+    username: restaurant_crossrich
+    password: fbb7af82438d2ffb067a79640aaf5ac55db87a02
   jpa:
     show-sql: true
     hibernate:
